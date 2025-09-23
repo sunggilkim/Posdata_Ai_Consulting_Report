@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2024년 5월 20일 편의점 매출 현황 리포트</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Data Labels Plugin CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <!-- Google Fonts: Noto Sans KR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* 기본 폰트를 Noto Sans KR로 설정 */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #ffffff; /* 요청하신 흰색 배경 */
+        }
+        /* 차트 컨테이너 스타일 */
+        .chart-container {
+            background-color: #f9fafb; /* 약간의 회색 배경으로 구분감 부여 */
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- 리포트 헤더 -->
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">일일 매출 현황 리포트</h1>
+            <p class="text-lg text-gray-600">2024년 5월 20일 기준</p>
+        </header>
+
+        <!-- 핵심 지표 (KPI) 섹션 -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="chart-container text-center">
+                <h3 class="text-md font-semibold text-gray-500 mb-2">전일 총 매출</h3>
+                <p class="text-3xl font-bold text-blue-600">1,850,000원</p>
+            </div>
+            <div class="chart-container text-center">
+                <h3 class="text-md font-semibold text-gray-500 mb-2">전전일 평균 대비</h3>
+                <p class="text-3xl font-bold text-green-600">+15.6%</p>
+            </div>
+            <div class="chart-container text-center">
+                <h3 class="text-md font-semibold text-gray-500 mb-2">전일 거래 건수</h3>
+                <p class="text-3xl font-bold text-gray-800">275건</p>
+            </div>
+            <div class="chart-container text-center">
+                <h3 class="text-md font-semibold text-gray-500 mb-2">전일 구매 객단가</h3>
+                <p class="text-3xl font-bold text-gray-800">7,750원</p>
+            </div>
+        </section>
+
+        <!-- 데이터 분석 및 시각화 섹션 -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- 1. 7일간 매출 추이 -->
+            <div class="chart-container lg:col-span-2">
+                <h2 class="text-xl font-bold mb-4">7일간 매출 추이</h2>
+                <canvas id="dailySalesChart"></canvas>
+            </div>
+
+            <!-- 2. 시간대별 매출 비교 -->
+            <div class="chart-container">
+                <h2 class="text-xl font-bold mb-4">시간대별 매출 비교</h2>
+                <canvas id="hourlySalesChart"></canvas>
+            </div>
+
+            <!-- 3. 카테고리별 매출 비중 -->
+            <div class="chart-container">
+                <h2 class="text-xl font-bold mb-4">카테고리별 매출 비중</h2>
+                <canvas id="categorySalesChart"></canvas>
+            </div>
+
+            <!-- 4. 구매 객단가 및 거래건수 추이 (통합) -->
+            <div class="chart-container lg:col-span-2">
+                 <h2 class="text-xl font-bold mb-4">구매 객단가 및 거래건수 7일 추이</h2>
+                 <canvas id="combinedAtvTransactionChart"></canvas>
+            </div>
+
+            <!-- 5. 전일 판매 TOP 5 상품 -->
+            <div class="chart-container">
+                <h2 class="text-xl font-bold mb-4">전일 판매 TOP 5 상품</h2>
+                <ul class="space-y-3">
+                    <li class="flex justify-between items-center p-3 bg-white rounded-lg border">
+                        <p class="font-bold text-blue-600">1. 캔맥주</p>
+                        <p class="text-gray-700 font-medium">30개 / 190,000원</p>
+                    </li>
+                    <li class="flex justify-between items-center p-3 bg-white rounded-lg border">
+                        <p class="font-bold text-blue-600">2. 생수 500ml</p>
+                        <p class="text-gray-700 font-medium">40개 / 136,000원</p>
+                    </li>
+                    <li class="flex justify-between items-center p-3 bg-white rounded-lg border">
+                        <p class="font-bold text-blue-600">3. 컵라면</p>
+                        <p class="text-gray-700 font-medium">35개 / 135,000원</p>
+                    </li>
+                     <li class="flex justify-between items-center p-3 bg-white rounded-lg border">
+                        <p class="font-bold text-blue-600">4. 에너지 드링크</p>
+                        <p class="text-gray-700 font-medium">25개 / 132,500원</p>
+                    </li>
+                    <li class="flex justify-between items-center p-3 bg-white rounded-lg border">
+                        <p class="font-bold text-blue-600">5. 삼각김밥</p>
+                        <p class="text-gray-700 font-medium">28개 / 128,000원</p>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 6. 전일 연관 구매 TOP 3 -->
+            <div class="chart-container">
+                <h2 class="text-xl font-bold mb-4">전일 연관 구매 TOP 3</h2>
+                <ul class="space-y-3">
+                    <li class="flex justify-between items-center p-3 bg-white rounded-lg border">
+                        <p class="font-bold text-green-600">1. 캔맥주 + 오징어땅콩</p>
+                        <p class="text-gray-700 font-medium">25건 / 95,000원</p>
+                    </li>
+                     <li class="flex justify-between items-center p-3 bg-white rounded-lg border">
+                        <p class="font-bold text-green-600">2. 삼각김밥 + 탄산음료</p>
+                        <p class="text-gray-700 font-medium">20건 / 35,000원</p>
+                    </li>
+                     <li class="flex justify-between items-center p-3 bg-white rounded-lg border">
+                        <p class="font-bold text-green-600">3. 컵라면 + 생수</p>
+                        <p class="text-gray-700 font-medium">18건 / 25,000원</p>
+                    </li>
+                </ul>
+            </div>
+             <!-- 7. 시간대별 최다 매출 카테고리 -->
+            <div class="chart-container lg:col-span-2">
+                <h2 class="text-xl font-bold mb-4">시간대별 주요 구매 카테고리</h2>
+                <div class="space-y-3 text-sm">
+                    <p><span class="font-semibold text-purple-600 p-1 bg-purple-100 rounded">00~08시 (심야/새벽):</span> <span class="font-bold">라면, 도시락, 음료</span></p>
+                    <p><span class="font-semibold text-yellow-600 p-1 bg-yellow-100 rounded">08~12시 (오전):</span> <span class="font-bold">빵, 스낵, 음료(커피)</span></p>
+                    <p><span class="font-semibold text-green-600 p-1 bg-green-100 rounded">12~16시 (점심):</span> <span class="font-bold">샐러드, 도시락/간편식, 음료</span></p>
+                    <p><span class="font-semibold text-red-600 p-1 bg-red-100 rounded">16~24시 (오후/저녁):</span> <span class="font-bold">주류, 스낵, 라면</span></p>
+                </div>
+            </div>
+
+            <!-- AI 컨설팅 섹션 추가 -->
+            <div class="chart-container lg:col-span-2 mt-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">AI 경영 컨설팅</h2>
+                <div class="space-y-6 text-gray-700">
+                    <div>
+                        <h3 class="text-xl font-bold mb-2 text-blue-600">1. 일일 매출 현황 종합 분석</h3>
+                        <p>2024년 5월 20일 매출은 <strong>1,850,000원</strong>으로, 전전일 대비 <strong>15.6% 성장</strong>하는 긍정적인 추세를 보였습니다. 특히 주목할 점은 <strong>객단가(7,750원)</strong>가 지난 7일간 꾸준히 상승하여 최고치를 기록했다는 것입니다. 이는 고객 1인당 구매 금액이 증가하고 있음을 의미하며, 효과적인 상품 구성 및 진열이 성공적으로 이루어졌다고 평가할 수 있습니다. 거래 건수 역시 275건으로 안정적인 유입을 유지하고 있어, 객단가 상승과 함께 전체 매출 성장을 견인하고 있습니다.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-2 text-blue-600">2. 시간대별 매출 및 상품 분석</h3>
+                        <p>매출은 <strong>18~20시(350,000원)</strong>와 <strong>12~14시(300,000원)</strong>에 가장 집중되었습니다. 이는 퇴근 및 점심 시간 고객의 활발한 방문을 보여줍니다. 이 시간대에는 주류, 도시락/간편식, 라면 등 식사 및 간식류 매출이 높게 나타났습니다.</p>
+                        <p class="mt-2">반면, <strong>06~10시 출근 시간대의 매출은 상대적으로 낮은 편</strong>입니다. 이는 바쁜 출근 고객들을 위한 맞춤형 전략을 통해 매출을 더욱 끌어올릴 수 있는 기회 요인이 될 수 있습니다.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-2 text-blue-600">3. 연관 구매 분석 및 컨설팅</h3>
+                        <p>전일 연관 구매 TOP 3는 <strong>캔맥주+오징어땅콩, 삼각김밥+탄산음료, 컵라면+생수</strong>였습니다. 이는 특정 상품을 구매하는 고객이 연관 상품을 함께 구매하는 경향이 매우 높다는 것을 의미합니다.</p>
+                        <p class="font-bold mt-4 mb-2 text-green-600">원포인트 컨설팅: '야식 콤보' 프로모션 강화</p>
+                        <p>퇴근 및 심야 시간대(18시 이후)의 주요 매출 상품인 주류, 라면, 도시락과 연관 구매 TOP 3를 활용한 '야식 콤보' 프로모션을 제안합니다. 예를 들어, 캔맥주+안주류(오징어땅콩, 마른안주 등), 컵라면+생수/김치를 묶어 할인 판매하면 추가 구매를 자연스럽게 유도하여 객단가를 더욱 높일 수 있습니다. 해당 상품들을 눈에 잘 띄는 곳에 함께 진열하는 것도 중요합니다.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-2 text-blue-600">4. 카테고리별 매출 비중 분석 및 컨설팅</h3>
+                        <p>매출 비중이 가장 높은 카테고리는 **음료(25%)**와 **주류(20%)**입니다. 이는 고객들의 구매 패턴에서 음료와 주류가 필수적인 품목임을 보여줍니다. 특히 주류는 18-20시 매출 집중 시간대와 연관 구매 분석에서도 중요한 역할을 합니다. **도시락/간편식(18%)**은 꾸준한 수요를 바탕으로 매출 비중 3위를 차지하고 있습니다. 이는 12-14시 점심시간과 20-24시 야식 시간대의 수요를 충족시키고 있음을 의미합니다.</p>
+                        <p class="mt-2">반면, **빙과류(5%)**, **잡화(5%)**, **빵(3%)**, **기타(2%)**는 매출 비중이 낮은 카테고리입니다. 특히 5월은 기온이 상승하는 시기이므로 빙과류 매출 비중을 높일 수 있는 전략이 필요합니다. 빵과 스낵은 오전 시간대 구매 비중이 높으므로, 진열 위치를 조정하거나 아침 식사 세트 프로모션을 강화하여 매출을 끌어올릴 수 있습니다.</p>
+                        <p class="font-bold mt-4 mb-2 text-green-600">원포인트 컨설팅: 계절성 상품 및 진열 전략</p>
+                        <p>다가오는 여름을 대비해 **빙과류 냉동고의 위치를 고객 동선이 가장 잘 보이는 곳으로 옮기거나, '아이스크림 1+1'과 같은 프로모션**을 진행하여 매출을 끌어올릴 수 있습니다. 또한, 주류 매출 비중이 높은 점을 활용하여 **냉장고 안의 맥주 옆에 어울리는 안주류(스낵, 마른안주 등)를 함께 진열하는 전략**을 통해 연관 구매를 더욱 극대화할 수 있습니다.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-2 text-blue-600">5. 종합 의견</h3>
+                        <p>오늘의 데이터는 전반적으로 매우 긍정적입니다. 안정적인 고객 유입과 꾸준히 상승하는 객단가는 견고한 성장 기반을 마련했음을 보여줍니다. 특히 매출 집중 시간대와 연관 구매 데이터를 활용한 전략은 추가적인 매출 성장을 위한 핵심 열쇠가 될 것입니다. 이러한 인사이트를 바탕으로 효율적인 상품 운영 및 프로모션 계획을 수립한다면, 더 큰 성과를 기대할 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Data Labels 플러그인 전역 등록
+        Chart.register(ChartDataLabels);
+
+        // Chart.js를 사용하여 데이터 시각화
+        const ctxDailySales = document.getElementById('dailySalesChart').getContext('2d');
+        const dailySalesChart = new Chart(ctxDailySales, {
+            type: 'line',
+            data: {
+                labels: ['5/14', '5/15', '5/16', '5/17', '5/18', '5/19', '5/20'],
+                datasets: [{
+                    label: '일일 매출 (원)',
+                    data: [1550000, 1600000, 1620000, 1750000, 1780000, 1800000, 1850000],
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true,
+                }, {
+                    label: '전주 평균 매출 (원)',
+                    data: [1600000, 1600000, 1600000, 1600000, 1600000, 1600000, 1600000],
+                    borderColor: 'rgba(107, 114, 128, 1)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0, // 데이터 포인트를 숨깁니다.
+                    pointHoverRadius: 0, // 마우스를 올려도 포인트가 보이지 않습니다.
+                    fill: false
+                }]
+            },
+            options: {
+				responsive: true,
+				scales: {
+					y: {
+						beginAtZero: false,
+						ticks: {
+							callback: function(value, index, values) {
+								return new Intl.NumberFormat('ko-KR').format(value) + '원';
+							}
+						}
+					}
+				},
+				plugins: {
+					datalabels: {
+						// 이 formatter 함수가 핵심입니다.
+						formatter: (value, context) => {
+							// '전주 평균 매출 (원)' 데이터셋의 인덱스는 1번입니다.
+							if (context.datasetIndex === 1) {
+								return ''; // 1번 데이터셋의 값은 빈 문자열로 반환
+							}
+							// 다른 모든 데이터셋의 값은 정상적으로 표시
+							return new Intl.NumberFormat('ko-KR').format(value);
+						},
+						align: 'end',
+						anchor: 'end',
+						color: '#4a4a4a',
+						font: {
+							weight: 'bold',
+							size: 14
+						}
+					}
+				}
+			}
+
+        });
+
+        const ctxHourlySales = document.getElementById('hourlySalesChart').getContext('2d');
+        const hourlySalesChart = new Chart(ctxHourlySales, {
+            type: 'bar',
+            data: {
+                labels: ['0-2', '2-4', '4-6', '6-8', '8-10', '10-12', '12-14', '14-16', '16-18', '18-20', '20-22', '22-24'],
+                datasets: [{
+                    label: '전일 시간대별 매출',
+                    data: [80000, 50000, 70000, 150000, 200000, 250000, 300000, 220000, 250000, 350000, 300000, 280000],
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1
+                }, {
+                    label: '주 평균 시간대별 매출',
+                    data: [70000, 45000, 60000, 130000, 180000, 230000, 280000, 210000, 240000, 320000, 280000, 260000],
+                     backgroundColor: 'rgba(209, 213, 219, 0.8)',
+                    borderColor: 'rgba(107, 114, 128, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                 responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                         ticks: {
+                            callback: function(value, index, values) {
+                                return new Intl.NumberFormat('ko-KR').format(value);
+                            }
+                        }
+                    }
+                },
+				// 아래 plugins 설정을 추가하거나 수정하세요.
+				plugins: {
+					datalabels: {
+					display: false // 이 한 줄로 데이터 값 표시를 비활성화합니다.
+					}
+				}
+            }
+			
+        });
+
+        const ctxCategorySales = document.getElementById('categorySalesChart').getContext('2d');
+        const categorySalesChart = new Chart(ctxCategorySales, {
+            type: 'doughnut',
+            data: {
+                labels: ['음료', '주류', '도시락/간편식', '라면', '스낵/과자', '빙과류', '잡화', '빵', '기타'],
+                datasets: [{
+                    label: '매출 비중',
+                    data: [25, 20, 18, 12, 10, 5, 5, 3, 2],
+                    backgroundColor: [
+                        '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+                        '#EC4899', '#6B7280', '#F97316', '#D1D5DB'
+                    ],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    datalabels: {
+                        formatter: (value, ctx) => {
+                            let label = ctx.chart.data.labels[ctx.dataIndex];
+                            if (value < 5) return ''; // 작은 값은 라벨 숨김
+                            return `${label}\n${value}%`;
+                        },
+                        color: '#fff',
+                        textStrokeColor: 'black',
+                        textStrokeWidth: 1,
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        textAlign: 'center'
+                    }
+                }
+            }
+        });
+        
+        const ctxCombined = document.getElementById('combinedAtvTransactionChart').getContext('2d');
+        const combinedAtvTransactionChart = new Chart(ctxCombined, {
+            type: 'bar', // 복합 차트를 위해 기본 타입을 바로 설정
+            data: {
+                labels: ['5/14', '5/15', '5/16', '5/17', '5/18', '5/19', '5/20'],
+                datasets: [{
+                    type: 'line',
+                    label: '구매 객단가 (원)',
+                    data: [6800, 7100, 6950, 7500, 7200, 7600, 7750],
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    yAxisID: 'yAtv',
+                    tension: 0.3,
+                    fill: true,
+                }, {
+                    type: 'line',
+                    label: '거래 건수 (건)',
+                    data: [255, 240, 250, 260, 270, 280, 275],
+                    borderColor: '#6B7280',
+                    backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                    yAxisID: 'yTransaction',
+                    tension: 0.3,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    yAtv: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: '구매 객단가 (원)',
+                            color: '#10B981'
+                        }
+                    },
+                    yTransaction: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: '거래 건수 (건)',
+                            color: '#6B7280'
+                        },
+                        grid: {
+                            drawOnChartArea: false, 
+                        },
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
