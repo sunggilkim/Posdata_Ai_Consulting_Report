@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>편의점 매출 대시보드</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Datalabels Plugin CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .card {
+            background-color: #f7fafc;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .metric-value {
+            font-size: 2.5rem;
+        }
+        .metric-label {
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-900 p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Dashboard Header -->
+        <header class="flex flex-col sm:flex-row justify-between items-center mb-6">
+            <div class="text-2xl sm:text-4xl font-bold mb-2 sm:mb-0">9월 20일 매출 대시보드</div>
+            <div class="flex items-center space-x-2 text-sm text-gray-600">
+                <span id="currentDate"></span>
+                <button class="bg-gray-200 text-gray-800 p-2 rounded-lg hover:bg-gray-300 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z" />
+                        <path d="M12 6v6h-4v-2h2V6h2zm3.313 7.828l-1.414 1.414-2.829-2.829 1.414-1.414 2.829 2.829z" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Key Metrics -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <!-- Total Revenue -->
+            <div class="card p-6 flex flex-col justify-between">
+                <div>
+                    <div class="metric-label text-sm mb-2">총매출</div>
+                    <div class="metric-value font-bold text-green-600">4,500,000원</div>
+                </div>
+                <div class="flex items-center text-sm mt-4">
+                    <span class="text-green-600">▲</span>
+                    <span class="text-gray-500 ml-1">전전일 대비 10% 증가</span>
+                </div>
+            </div>
+
+            <!-- Average Transaction Value -->
+            <div class="card p-6 flex flex-col justify-between">
+                <div>
+                    <div class="metric-label text-sm mb-2">구매 객단가</div>
+                    <div class="metric-value font-bold text-yellow-600">5,400원</div>
+                </div>
+                <div class="flex items-center text-sm mt-4">
+                    <span class="text-red-600">▼</span>
+                    <span class="text-gray-500 ml-1">전전일 대비 3% 감소</span>
+                </div>
+            </div>
+
+            <!-- Transaction Count -->
+            <div class="card p-6 flex flex-col justify-between">
+                <div>
+                    <div class="metric-label text-sm mb-2">거래 건수</div>
+                    <div class="metric-value font-bold text-blue-600">833건</div>
+                </div>
+                <div class="flex items-center text-sm mt-4">
+                    <span class="text-green-600">▲</span>
+                    <span class="text-gray-500 ml-1">전전일 대비 5% 증가</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <!-- 7-Day Revenue Trend (Line Chart) -->
+            <div class="card p-6 h-80 flex flex-col">
+                <h3 class="text-lg font-semibold mb-4">총매출 추이 (7일)</h3>
+                <div class="h-[250px]">
+                    <canvas id="revenueChart" class="w-full h-full"></canvas>
+                </div>
+            </div>
+            <!-- Hourly Revenue (Bar Chart) -->
+            <div class="card p-6 h-80 flex flex-col">
+                <h3 class="text-lg font-semibold mb-4">시간대별 매출</h3>
+                <div class="h-[250px]">
+                    <canvas id="hourlySalesChart" class="w-full h-full"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Analysis Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- Category Sales Breakdown (Doughnut Chart) -->
+            <div class="card p-6 h-80 flex flex-col">
+                <h3 class="text-lg font-semibold mb-4">카테고리별 매출 비중</h3>
+                <div class="h-[250px]">
+                    <canvas id="categoryChart" class="w-full h-full"></canvas>
+                </div>
+            </div>
+            <!-- Top 5 Products -->
+            <div class="card p-6 h-80 flex flex-col">
+                <h3 class="text-lg font-semibold mb-4">TOP 5 상품</h3>
+                <div class="space-y-4 overflow-y-auto">
+                    <!-- Top 5 Products List -->
+                    <div class="flex justify-between items-center bg-gray-200 p-4 rounded-lg">
+                        <span class="text-yellow-600 font-bold">1.</span>
+                        <div class="flex-grow ml-4">
+                            <div class="font-semibold">바나나 우유</div>
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <div class="text-gray-600">120,000원</div>
+                            <div class="text-green-600">125개</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-200 p-4 rounded-lg">
+                        <span class="text-gray-600 font-bold">2.</span>
+                        <div class="flex-grow ml-4">
+                            <div class="font-semibold">즉석밥</div>
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <div class="text-gray-600">95,000원</div>
+                            <div class="text-green-600">95개</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-200 p-4 rounded-lg">
+                        <span class="text-gray-600 font-bold">3.</span>
+                        <div class="flex-grow ml-4">
+                            <div class="font-semibold">얼음컵</div>
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <div class="text-gray-600">80,000원</div>
+                            <div class="text-green-600">160개</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-200 p-4 rounded-lg">
+                        <span class="text-gray-600 font-bold">4.</span>
+                        <div class="flex-grow ml-4">
+                            <div class="font-semibold">삼각김밥</div>
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <div class="text-gray-600">75,000원</div>
+                            <div class="text-green-600">75개</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-200 p-4 rounded-lg">
+                        <span class="text-gray-600 font-bold">5.</span>
+                        <div class="flex-grow ml-4">
+                            <div class="font-semibold">생수</div>
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <div class="text-gray-600">60,000원</div>
+                            <div class="text-green-600">100개</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 현재 날짜를 표시하는 스크립트
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ko-KR', {
+            year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        // Chart.js Datalabels 플러그인 등록
+        Chart.register(ChartDataLabels);
+
+        // 7일간 매출 추이 (꺾은선 그래프)
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['9/14', '9/15', '9/16', '9/17', '9/18', '9/19', '9/20'],
+                datasets: [{
+                    label: '총매출 (만원)',
+                    data: [350, 420, 380, 450, 410, 400, 450],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { color: '#e2e8f0' },
+                        ticks: { color: '#4a5568' }
+                    },
+                    y: {
+                        grid: { color: '#e2e8f0' },
+                        ticks: { color: '#4a5568' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // 시간대별 매출 (막대 그래프)
+        const hourlySalesCtx = document.getElementById('hourlySalesChart').getContext('2d');
+        const hourlySalesChart = new Chart(hourlySalesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['6시', '7시', '8시', '9시', '10시', '11시', '12시', '13시', '14시', '15시', '16시', '17시', '18시', '19시', '20시', '21시', '22시', '23시'],
+                datasets: [{
+                    label: '시간대별 매출 (만원)',
+                    data: [15, 25, 40, 30, 20, 35, 50, 45, 38, 30, 25, 40, 55, 60, 50, 45, 30, 20],
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { color: '#e2e8f0' },
+                        ticks: { color: '#4a5568' }
+                    },
+                    y: {
+                        grid: { color: '#e2e8f0' },
+                        ticks: { color: '#4a5568' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // 카테고리별 매출 비중 (도넛 차트)
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        const categoryChart = new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['도시락', '음료', '주류', '스낵', '채소', '기타'],
+                datasets: [{
+                    data: [30, 25, 15, 10, 5, 15],
+                    backgroundColor: ['#f59e0b', '#ef4444', '#3b82f6', '#10b981', '#6366f1', '#a0aec0'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#fff',
+                        formatter: (value, context) => {
+                            const total = context.chart.data.datasets[0].data.reduce((sum, val) => sum + val, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${context.chart.data.labels[context.dataIndex]}\n${percentage}%`;
+                        },
+                        font: {
+                            weight: 'bold',
+                            size: 14,
+                        },
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
